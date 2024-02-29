@@ -16,7 +16,8 @@ services:
             - '${APP_PORT:-3000}:3000'
             - '${PRISMA_STUDIO_PORT:-5555}:5555'
         depends_on:
-            - mysql
+            mysql:
+                condition: service_healthy
         volumes:
             - .:/app
     mysql:
@@ -39,7 +40,7 @@ services:
         healthcheck:
             test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
             retries: 3
-            timeout: 5s
+            timeout: 3s
 networks:
     dev-network:
         driver: bridge

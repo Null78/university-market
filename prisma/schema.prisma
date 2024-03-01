@@ -1,18 +1,18 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
- 
+
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
- 
+
 generator client {
   provider = "prisma-client-js"
 }
- 
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
- 
+
 model Account {
   id                 String  @id @default(cuid())
   userId             String
@@ -27,12 +27,11 @@ model Account {
   id_token           String?  @db.Text
   session_state      String?
  
- 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
  
   @@unique([provider, providerAccountId])
 }
- 
+
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
@@ -40,87 +39,83 @@ model Session {
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
- 
+
 model User {
-  id            String    @id @default(cuid())
+  id            String       @id @default(cuid())
   firstName     String
   lastName      String
-  email         String?   @unique
+  email         String?      @unique
   emailVerified DateTime?
-  password      String    @db.Char(60)
-  phone         String?   @unique
+  password      String       @db.Char(60)
+  phone         String?      @unique
   gender        Boolean
-  isAdmin       Boolean   @default(false)
-  isBlocked     Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  isAdmin       Boolean      @default(false)
+  isBlocked     Boolean      @default(false)
+  created_at    DateTime     @default(now())
+  updated_at    DateTime     @updatedAt
   deletedAt     DateTime?
   accounts      Account[]
   sessions      Session[]
-  posts         posts[]
-  post_media    post_media[]
-   reports       Report[]    @relation("userReports")
- 
+  posts         Post[]
+  postMedia     PostMedia[]
+  reported      Report[]     @relation("reportedUser")
+  reports       Report[]     @relation("reporterUser")
+  media         Media[]
 }
+
 model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
- 
+
   @@unique([identifier, token])
 }
-model posts{
- id            String    @id @default(cuid())
- title         String
- level         String
- description   String
- location      String    
- status        String
- user_id       String    
- createdAt     DateTime  @default(now())
- updatedAt     DateTime  @updatedAt
- deletedAt     DateTime?
- user          User      @relation(fields: [user_id], references: [id])
-   post_media    post_media[]
- 
+
+model Post {
+  id          String      @id @default(cuid())
+  title       String
+  level       String
+  description String
+  location    String
+  status      String
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+  deleted_at  DateTime?
+  postMedia   PostMedia[]
 }
-model post_media {
-  user_id     String    
-  post_id     String    
-  createdAt   DateTime  @default(now())
- 
-  @@map("post_media") 
- 
-  @@index([user_id], name: "FK_user_id") 
-  @@index([post_id], name: "FK_post_id") 
- 
-  @@id([user_id, post_id])
- 
-  user User @relation(fields: [user_id], references: [id])
-  post posts @relation(fields: [post_id], references: [id])
+
+model PostMedia {
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  postId      String
+  post        Post      @relation(fields: [postId], references: [id])
+  created_at  DateTime  @default(now())
+
+  @@id([userId, postId])
 }
 
 model Media {
-  id       String     @id @default(cuid())
-  name     String
-  path     String
-  size     Int  
-  mimetype String
-  user_id  String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  deleted_at    DateTime?
+  id          String     @id @default(cuid())
+  name        String
+  path        String
+  size        Int
+  mimetype    String
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
 }
+
 model Report {
-  id            String     @id @default(cuid())
-  reporter_id   String
-  reported_id   String    
-  type          String
-  created_at    DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
- 
-  reporter      User      @relation("userReports", fields: [reporter_id], references: [id])
- 
-  @@index([reporter_id], name: "FK_reporter_id")
-  @@index([reported_id], name: "FK_reported_id")
+  id          String   @id @default(cuid())
+  reporterId  String
+  reporter    User     @relation("reporterUser", fields: [reporterId], references: [id])
+  reportedId  String
+  reported    User     @relation("reportedUser", fields: [reportedId], references: [id])
+  type        String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 }

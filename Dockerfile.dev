@@ -1,5 +1,7 @@
 FROM node:hydrogen-alpine3.19
 
+RUN apk add --no-cache g++ make py3-pip
+
 WORKDIR /app
 
 COPY package.json /app/package.json

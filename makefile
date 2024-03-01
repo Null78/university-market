@@ -10,6 +10,18 @@ app-shell:
 up:
 	$(call compose,up,-d)
 
+migrate:
+	docker exec -it upm-market npx prisma migrate dev
+
+generate:
+	docker exec -it upm-market npx prisma generate
+
+reset-db:
+	docker exec -it upm-market npx prisma db push --force-reset
+
+studio:
+	docker exec -it upm-market npx prisma studio
+
 up-rebuild:
 	$(call compose,up,-d --build)
 

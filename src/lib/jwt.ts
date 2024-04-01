@@ -13,7 +13,6 @@ export function signJwtAccessToken(payload: JwtPayload, options: SignOption = DE
   const token = jwt.sign(payload, secret_key!, options);
   return token;
 }
-https://upm-market.com/api/login
 export function verifyJwt(token: string) {
   try {
     const secret_key = process.env.SECRET_KEY;

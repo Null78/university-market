@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
-import { Card, CardBody, Checkbox, Button, Input, Link, Divider, Tooltip } from "@nextui-org/react";
+import { signIn } from "next-auth/react";
+import { Card, CardBody, Checkbox, Button, Input, Link, Divider } from "@nextui-org/react";
 import { EyeFilledIcon } from "@/components/icons/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "@/components/icons/EyeSlashFilledIcon";
 import { Microsoft } from "@/components/icons/Microsoft";
@@ -33,7 +33,7 @@ const Login = () => {
             });
 
             if (!response?.error) {
-                router.push(response?.url ?? "");
+                router.push(response?.url ?? "/");
                 router.refresh();
             }
 
@@ -41,7 +41,7 @@ const Login = () => {
                 setFormError(true);
             }
         } catch (error) {
-            console.error("Registration Failed:", error);
+            console.error("Log In Failed:", error);
         }
 
         setIsLoading(false);
@@ -64,6 +64,7 @@ const Login = () => {
                             onChange={() => setFormError(false)}
                             color={formError ? "danger" : "primary"}
                             isInvalid={formError}
+                            isRequired
                         />
                         <Input
                             label="Password"
@@ -74,6 +75,7 @@ const Login = () => {
                             isInvalid={formError}
                             errorMessage={formError ? "Invalid email or password" : ""}
                             color={formError ? "danger" : "primary"}
+                            isRequired
                             endContent={
                                 <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
                                 {isVisible ? (

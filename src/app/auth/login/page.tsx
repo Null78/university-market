@@ -32,8 +32,6 @@ const Login = () => {
                 callbackUrl: params?.callbackUrl ?? "/",
             });
 
-            console.log(response)
-
             if (!response?.error) {
                 router.push(response?.url ?? "");
                 router.refresh();

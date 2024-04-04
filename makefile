@@ -5,22 +5,22 @@ DOCKER_COMPOSE_V1_EXIT_CODE=$(shell docker-compose >/dev/null 2>&1; echo $$?)
 
 # Targets
 app-shell:
-	docker exec -it app sh
+	docker exec -it upm-market sh
 
 up:
 	$(call compose,up,-d)
 
 migrate:
-	docker exec -it app npx prisma migrate dev
+	docker exec -it upm-market npx prisma migrate dev
 
 generate:
-	docker exec -it app npx prisma generate
+	docker exec -it upm-market npx prisma generate
 
 reset-db:
-	docker exec -it app npx prisma db push --force-reset
+	docker exec -it upm-market npx prisma db push --force-reset
 
 studio:
-	docker exec -it app npx prisma studio
+	docker exec -it upm-market npx prisma studio
 
 up-rebuild:
 	$(call compose,up,-d --build)

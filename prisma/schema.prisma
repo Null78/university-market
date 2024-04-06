@@ -58,7 +58,7 @@ model User {
   sessions      Session[]
   posts         Post[]
   postMedia     PostMedia[]
-  reported      Report[]     @relation("reportedUser")
+  // reported      Report[]     @relation("reportedUser")
   reports       Report[]     @relation("reporterUser")
   media         Media[]
 }
@@ -84,6 +84,8 @@ model Post {
   updated_at  DateTime    @updatedAt
   deleted_at  DateTime?
   postMedia   PostMedia[]
+  reported    Report[]     @relation("reportedPost")
+
 }
 
 model PostMedia {
@@ -114,7 +116,7 @@ model Report {
   reporterId  String
   reporter    User     @relation("reporterUser", fields: [reporterId], references: [id])
   reportedId  String
-  reported    User     @relation("reportedUser", fields: [reportedId], references: [id])
+  reported    Post     @relation("reportedPost", fields: [reportedId], references: [id])
   type        String
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt

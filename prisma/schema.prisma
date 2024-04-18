@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String       @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String?      @unique
+  emailVerified DateTime?
+  password      String       @db.Char(60)
+  phone         String?      @unique
+  gender        Boolean
+  isAdmin       Boolean      @default(false)
+  isBlocked     Boolean      @default(false)
+  created_at    DateTime     @default(now())
+  updated_at    DateTime     @updatedAt
+  deletedAt     DateTime?
+  accounts      Account[]
+  sessions      Session[]
+  posts         Post[]
+  postMedia     PostMedia[]
+  // reported      Report[]     @relation("reportedUser")
+  reports       Report[]     @relation("reporterUser")
+  media         Media[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Post {
+  id          String      @id @default(cuid())
+  title       String
+  level       String
+  description String
+  location    String
+  status      String
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+  deleted_at  DateTime?
+  postMedia   PostMedia[]
+  reported    Report[]     @relation("reportedPost")
+
+}
+
+model PostMedia {
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  postId      String
+  post        Post      @relation(fields: [postId], references: [id])
+  created_at  DateTime  @default(now())
+
+  @@id([userId, postId])
+}
+
+model Media {
+  id          String     @id @default(cuid())
+  name        String
+  path        String
+  size        Int
+  mimetype    String
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  reporterId  String
+  reporter    User     @relation("reporterUser", fields: [reporterId], references: [id])
+  reportedId  String
+  reported    Post     @relation("reportedPost", fields: [reportedId], references: [id])
+  type        String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}

@@ -1,0 +1,49 @@
+# This is for development use only
+
+version: '3'
+services:
+    app:
+        container_name: upm-market
+        restart: unless-stopped
+        build:
+          context: .
+          dockerfile: Dockerfile.dev
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        networks:
+            - dev-network
+        ports:
+            - '${APP_PORT:-3000}:3000'
+            - '${PRISMA_STUDIO_PORT:-5555}:5555'
+        depends_on:
+            mysql:
+                condition: service_healthy
+        volumes:
+            - .:/app
+    mysql:
+        container_name: mysql-db
+        restart: unless-stopped
+        image: 'mysql:8.0.33'
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ROOT_HOST: "%"
+            MYSQL_DATABASE: '${DB_DATABASE}'
+            MYSQL_USER: '${DB_USERNAME}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        volumes:
+            - dev-data:/var/lib/mysql
+        networks:
+            - dev-network
+        ports: 
+            - '${DB_PORT:-3306}:3306'
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
+            retries: 3
+            timeout: 3s
+networks:
+    dev-network:
+        driver: bridge
+
+volumes:
+  dev-data:

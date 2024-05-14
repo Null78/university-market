@@ -3,12 +3,41 @@ import prisma from "@/lib/prisma";
 // get all posts
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url) // get query params like ?search=hello
-    const allPosts = await prisma.post.findMany({
-        where: {
-            deleted_at: null,
+    const userId = searchParams.get('user_id');
+    let allPosts;
+    // user is logged in
+    if (userId) {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            }
+        });
+        // user is admin
+        if (user?.isAdmin) {
+            allPosts = await prisma.post.findMany({
+                where: {
+                    deleted_at: null,
+                }
+            });
+        } else {
+            // user is not admin
+            allPosts = await prisma.post.findMany({
+                where: {
+                    deleted_at: null,
+                    userId: userId,
+                }
+            });
         }
-    });
-  
+    } else {
+        // user is not logged in
+        allPosts = await prisma.post.findMany({
+            where: {
+                deleted_at: null,
+                status: 'APPROVED',
+            }
+        });
+    }
+    
     return Response.json({
         success: true,
         message: "",
@@ -19,6 +48,16 @@ export async function GET(request: Request) {
 // create a new post
 export async function POST(request: Request) {
     const body = await request.json();
+
+    const user = await prisma.user.findUnique({
+        where: {
+            id: body.user_id,
+        }
+    });
+
+    if (user?.isBlocked) {
+        throw new Error('User is blocked');
+    }
     
     const newPost = await prisma.post.create({
         data: {

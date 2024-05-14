@@ -54,12 +54,12 @@ export const authOptions: NextAuthOptions = {
   jwt: { encode, decode, maxAge: 5 * 24 * 60 * 60 },
 
   callbacks: {
-    async jwt({ token, user }) {
-      return { ...token, ...user };
+    async jwt({ token, user, account, profile, isNewUser }) {
+      return {...token, ...user};
     },
 
-    async session({ session, token }) {
-      session.user = token as any;
+    async session({ session, user, token }) {
+      session.user = token.user as any;
       return session;
     },
   },

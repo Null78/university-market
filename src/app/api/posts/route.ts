@@ -14,11 +14,7 @@ export async function GET(request: Request) {
         });
         // user is admin
         if (user?.isAdmin) {
-            allPosts = await prisma.post.findMany({
-                where: {
-                    deleted_at: null,
-                }
-            });
+            allPosts = await prisma.post.findMany();
         } else {
             // user is not admin
             allPosts = await prisma.post.findMany({

@@ -23,6 +23,15 @@ export async function GET(request: Request) {
 //create a new report
 export async function POST(request: Request) {
     const body = await request.json();
+    const user = await prisma.user.findUnique({
+      where: {
+          id: body.user_id,
+      }
+  });
+
+  if (user?.isBlocked) {
+      throw new Error('User is blocked');
+  }
     const newReport = await prisma.report.create({
       data: {
         reporter: {

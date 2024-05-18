@@ -20,8 +20,8 @@ export async function GET(
 export async function DELETE(
     req: Request,
     { params }: { params: { id: string } }
-  ) {
-    const id = params.id
+) {
+    const id = params.id;
     const deletedMedia = await prisma.media.update({
         where: {
             id,
@@ -30,6 +30,6 @@ export async function DELETE(
             deleted_at: new Date(),
         }
     });
-  
+
     return Response.json(deletedMedia);
-  }
+}

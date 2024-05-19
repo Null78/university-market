@@ -12,6 +12,14 @@ export async function GET(
     const post = await prisma.post.findUnique({
         where: {
             id,
+        },
+        include: {
+            postMedia: {
+                include: {
+                    media: true
+                }
+            },
+            user: true,
         }
     });
   

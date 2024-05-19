@@ -3,10 +3,11 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import prisma from "@/lib/prisma"
 import { encode, decode } from 'next-auth/jwt';
+import { Adapter } from "next-auth/adapters";
 
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     CredentialsProvider({
       // The name to display on the sign in form (e.g. "Sign in with...")
@@ -59,7 +60,7 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, user, token }) {
-      session.user = token.user as any;
+      session.user = token as any;
       return session;
     },
   },

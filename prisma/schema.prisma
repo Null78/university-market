@@ -57,7 +57,6 @@ model User {
   accounts      Account[]
   sessions      Session[]
   posts         Post[]
-  postMedia     PostMedia[]
   // reported      Report[]     @relation("reportedUser")
   reports       Report[]     @relation("reporterUser")
   media         Media[]
@@ -89,13 +88,13 @@ model Post {
 }
 
 model PostMedia {
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
-  postId      String
-  post        Post      @relation(fields: [postId], references: [id])
-  created_at  DateTime  @default(now())
+  mediaId       String
+  media         Media     @relation(fields: [mediaId], references: [id])
+  postId        String
+  post          Post      @relation(fields: [postId], references: [id])
+  created_at    DateTime  @default(now())
 
-  @@id([userId, postId])
+  @@id([mediaId, postId])
 }
 
 model Media {
@@ -106,6 +105,7 @@ model Media {
   mimetype    String
   userId      String
   user        User       @relation(fields: [userId], references: [id])
+  postMedia   PostMedia[]
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
   deleted_at  DateTime?

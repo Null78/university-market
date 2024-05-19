@@ -23,9 +23,7 @@ export async function GET(request: Request) {
 
 //file upload media
 
-export const POST = async (req: {
-    body: any; formData: () => any; 
-}, res: any) => {
+export const POST = async (req: any, res: any) => {
     // Parse the incoming form data
     const formData = await req.formData();
   

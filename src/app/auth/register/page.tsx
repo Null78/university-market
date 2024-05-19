@@ -138,6 +138,7 @@ const Register = () => {
                             className="max-w-xs"
                             onValueChange={setPhone}
                             onChange={() => setFormError(false)}
+                            isRequired
                         />
                         <Input
                             label="Password"

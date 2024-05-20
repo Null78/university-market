@@ -6,82 +6,62 @@ import { writeFile } from "fs/promises";
 
 //get media
 export async function GET(request: Request) {
-  // Check if the Authorization header is present
-  const authHeader = request.headers.get('Authorization');
-  if (!authHeader) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: {
-        'Content-Type': 'application/json',
+  const { pathname, searchParams } = new URL(request.url);
+  const pathParts = pathname.split('/');
+  const userId = pathParts[pathParts.length - 1];
+
+  // Check if the user is an admin or blocked
+  const user = await prisma.user.findUnique({
+      where: {
+          id: userId
       },
-    });
-  }
-
-  const { searchParams } = new URL(request.url);
-  const userId = searchParams.get('user_id');
-
-  try {
-    let allMedia: any[];
-
-    // User is logged in
-    if (userId) {
-      const user = await prisma.user.findUnique({
-        where: {
-          id: userId,
-        },
-      });
-
-      // User is admin
-      if (user?.isAdmin) {
-        allMedia = await prisma.media.findMany({
-          where: {
-            deleted_at: null,
-          },
-        });
-      } else {
-        // User is not admin
-        allMedia = await prisma.media.findMany({
-          where: {
-            deleted_at: null,
-            userId: userId,
-          },
-        });
+      select: {
+          isAdmin: true,
+          isBlocked: true
       }
-    } else {
-      // User is not logged in
-      const posts = await prisma.post.findMany({
-        where: {
-          status: 'APPROVED',
-        },
-        select: {
-          id: true,
-        },
-      });
+  });
 
-      const approvedPostIds = posts.map((post) => post.id);
-
-      allMedia = await prisma.media.findMany({
-        where: {
-          deleted_at: null,
-          
-        },
-      });
-    }
-
-    return Response.json({
-      success: true,
-      message: "",
-      data: allMedia,
-    });
-  } catch (error) {
-    console.error('Error fetching media:', error);
-    return new Response(
-      JSON.stringify({ success: false, message: 'Error fetching media' }),
-      { status: 500 }
-    );
+  if (!userId) {
+      return NextResponse.json({
+          success: false,
+          message: 'User ID is required',
+          data: null
+      }, { status: 400 });
   }
-}
 
+  // If the user is blocked, return an error
+  if (user?.isBlocked) {
+      return NextResponse.json({
+          success: false,
+          message: 'User is blocked and cannot access media',
+          data: null
+      }, { status: 403 });
+  }
+
+  let allMedia;
+  if (user?.isAdmin) {
+      // If the user is an admin, fetch all media regardless of the userId
+      allMedia = await prisma.media.findMany({
+          where: {
+              deleted_at: null
+          }
+      });
+  } else {
+      // If the user is not an admin, fetch media only for the specified userId
+      allMedia = await prisma.media.findMany({
+          where: {
+              userId: userId,
+              deleted_at: null
+          }
+      });
+  }
+
+  return NextResponse.json({
+      success: true,
+      message: '',
+      data: allMedia
+  });
+}
 
 //file upload media
 

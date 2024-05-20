@@ -22,25 +22,26 @@ export default function Home() {
 
   return (
     <>
-    <div className="py-20 text-center ">
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-4xl lg:text-5xl font-bold leading-tight">
+    <div className="py-20 text-start flex gap-8">
+      <div className="max-w-xl w-full mx-auto px-4">
+        <h1 className="text-3xl lg:text-4xl font-bold leading-tight">
           The UPM Marketplace
         </h1>
-        <h1 className="text-4xl lg:text-5xl font-bold leading-tight mt-2">
+        <h1 className="text-3xl lg:text-4xl font-bold leading-tight">
           Buy and Sell Books & Items
         </h1>
-        <p className="text-base lg:text-lg mt-6">
+        <p className="text-sm lg:text-base mt-4">
           Connect with fellow students to buy and sell textbooks,
           electronics, and more. Join our community and find great deals
           on items you need for your studies.
         </p>
-        <div className="mt-10 flex justify-center space-x-4">
+        <div className="mt-6 flex justify-start space-x-4">
           <Link href="/posts/new">
             <Button color="primary" size="lg">Get Started</Button>
           </Link>
         </div>
       </div>
+      <Image src="/assets/main.png" alt='Main Image' className='w-full object-contain' />
     </div>
 
     <div className='py-16'>

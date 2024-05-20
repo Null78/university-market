@@ -23,9 +23,12 @@ export default function RootLayout({
       <body>
         <Providers>
           <Navigation />
-          <main className="container mx-auto max-w-5xl px-6 flex-grow mt-6">
+          <main className="container mx-auto max-w-5xl px-6 flex-grow mt-6 h-[calc(100vh-125.5px)]">
             {children}
           </main>
+          <div className="footer text-center mx-auto pb-4">
+            <p className="text-sm text-gray-600 text-center">© 2024 University Market. All rights reserved.</p>
+          </div>
         </Providers>
       </body>
     </html>

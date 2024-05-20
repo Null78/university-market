@@ -37,7 +37,7 @@ const Posts = () => {
                     <Card key={post.id} shadow="none" className="border-2">
                         <CardHeader>
                             <div className="flex items-center relative w-full">
-                                <Image src="http://localhost:3000/assets/Capstone_Cart_(3).png" height={128} width={128} alt="avatar" className="rounded-lg h-32 w-32 aspect-square flex-grow" />
+                                <Image src={post.postMedia?.length > 0 ? post.postMedia[0].media.path : 'https://placehold.co/600x600/png?text=placeholder'} height={128} width={128} alt="avatar" className="rounded-lg h-32 w-32 aspect-square flex-grow" />
                                 <div className="ml-4 w-3/4">
                                     <h3 className="text-default-900 font-bold">{ post.title }</h3>
                                     <p className="text-default-400 text-sm">{ moment(post.created_at).fromNow() }</p>

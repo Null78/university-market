@@ -1,33 +1,78 @@
-import prisma from "@/lib/prisma";
-import { NextResponse } from "next/server";
+
 import path from "path";
 import { writeFile } from "fs/promises";
-
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 //get media
 export async function GET(request: Request) {
-    const { searchParams } = new URL(request.url) // 
-    const allMedia = await prisma.media.findMany({
+    const { pathname, searchParams } = new URL(request.url);
+    const pathParts = pathname.split('/');
+    const userId = pathParts[pathParts.length - 1];
+
+    // Check if the user is an admin
+    const user = await prisma.user.findUnique({
         where: {
-            deleted_at: null,
+            id: userId
+        },
+        select: {
+            isAdmin: true
         }
     });
-  
-    return Response.json({
+
+    if (!userId) {
+        return NextResponse.json({
+            success: false,
+            message: 'User ID is required',
+            data: null
+        }, { status: 400 });
+    }
+
+    let allMedia;
+    if (user?.isAdmin) {
+        // If the user is an admin, fetch all media regardless of the userId
+        allMedia = await prisma.media.findMany({
+            where: {
+                deleted_at: null
+            }
+        });
+    } else {
+        // If the user is not an admin, fetch media only for the specified userId
+        allMedia = await prisma.media.findMany({
+            where: {
+                userId: userId,
+                deleted_at: null
+            }
+        });
+    }
+
+    return NextResponse.json({
         success: true,
-        message: "",
+        message: '',
         data: allMedia
     });
-
 }
-
-//file upload media
 
 export const POST = async (req: {
     body: any; formData: () => any; 
-}, res: any) => {
+  }, res: any) => {
     // Parse the incoming form data
     const formData = await req.formData();
+  
+    // Get the user ID from the form data
+    const userId = formData.get("user_id");
+  
+    // Check if the user is blocked
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+  
+    if (user?.isBlocked) {
+      // If the user is blocked, return a JSON response with an error and a 403 status code
+      return NextResponse.json({ error: "User is blocked." }, { status: 403 });
+    }
   
     // Get the file from the form data
     const file = formData.get("file");
@@ -60,7 +105,7 @@ export const POST = async (req: {
           mimetype: file.type,
           user: {
             connect: {
-              id: formData.get("user_id"), // Access user ID from request body
+              id: userId, // Use the user ID from the request body
             },
           },
         },
@@ -69,24 +114,10 @@ export const POST = async (req: {
         success: true,
         message: "",
         data: newMedia
-    });
-     
-  
-  
-      // Return a JSON response with a success message and a 201 status code
-      return NextResponse.json({ Message: "Success", status: 201,name: newMedia.name,
-      path: newMedia.path,
-      size: newMedia.size,
-      mimetype: newMedia.mimetype});
+      });
     } catch (error) {
       // If an error occurs during file writing, log the error and return a JSON response with a failure message and a 500 status code
       console.log("Error occurred ", error);
       return NextResponse.json({ Message: "Failed", status: 500 });
-      
     }
-    finally {
-        console.log("Execution completed.");
-      }
-      
   };
-

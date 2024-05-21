@@ -36,7 +36,7 @@ export default function Home() {
           on items you need for your studies.
         </p>
         <div className="mt-6 flex justify-start space-x-4">
-          <Link href="/posts/new">
+          <Link href="/posts/create">
             <Button color="primary" size="lg">Get Started</Button>
           </Link>
         </div>
